@@ -79,7 +79,7 @@ CONFLUENT_VERSION="5.0.1"
 BROKER_ID=0
 ZOOKEEPER1KAFKA0="0"
 
-ZOOKEEPER_IP_PREFIX="172.23.0.6"
+ZOOKEEPER_IP_PREFIX="10.10.0.10"
 INSTANCE_COUNT=1
 ZOOKEEPER_PORT="2181"
 
@@ -131,8 +131,10 @@ echo "After install Java code"
 # 10.0.0.1-3 would be converted to "10.0.0.10 10.0.0.11 10.0.0.12"
 
 expand_ip_range_for_server_properties() {
+    echo "$1"
+    echo "$2"
     IFS='-' read -a HOST_IPS <<< "$1"
-    for (( n=0 ; n<("${HOST_IPS[1]}"+0) ; n++))
+    for (( n=0 ; n<"${HOST_IPS[1]}"+0 ; n++))
     do
         echo "server.$(expr ${n} + 1)=${HOST_IPS[0]}${n}:2888:3888" >> /opt/confluent/etc/kafka/zookeeper.properties
     done
@@ -147,7 +149,7 @@ expand_ip_range() {
 
     declare -a EXPAND_STATICIP_RANGE_RESULTS=()
 
-    for (( n=0 ; n<("${HOST_IPS[1]}"+0) ; n++))
+    for (( n=0 ; n<"${HOST_IPS[1]}"+0 ; n++))
     do
         HOST="${HOST_IPS[0]}${n}:${ZOOKEEPER_PORT}"
                 EXPAND_STATICIP_RANGE_RESULTS+=($HOST)
@@ -158,12 +160,15 @@ expand_ip_range() {
 
 download_confluent_oss()
 {
+  echo "In Download confluent oss"
   cd /opt/
+  echo "$PWD"
   # Download the package
   wget http://packages.confluent.io/archive/5.0/confluent-oss-5.0.1-2.11.tar.gz -O confluent-oss.tar.gz
 
   # untar confluent tar file
   tar -zxvf confluent-oss.tar.gz
+  echo | ls
 
   # rename directory to confluent
   mv confluent-5.0.1 confluent
@@ -202,10 +207,10 @@ configure_and_start_zookeeper()
 configure_and_start_kafka()
 {
   local kafka_props_file='/opt/confluent/etc/kafka/server.properties'
-
+  local log_dirs='\/opt\/confluent\/kafka-logs'
 	sed -r -i "s/(broker.id)=(.*)/\1=${BROKER_ID}/g" $kafka_props_file
 	sed -r -i "s/(zookeeper.connect)=(.*)/\1=$(join , $(expand_ip_range "${ZOOKEEPER_IP_PREFIX}-${INSTANCE_COUNT}"))/g" $kafka_props_file
-
+  sed -r -i "s/(log.dirs)=(.*)/\1=${log_dirs}/g" $kafka_props_file
   nohup /opt/confluent/bin/kafka-server-start $kafka_props_file >> /opt/confluent/logs/kafka-server.log &
 }
 

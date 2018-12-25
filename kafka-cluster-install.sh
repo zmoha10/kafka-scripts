@@ -236,6 +236,7 @@ mount_disk()
   fi
 }
 
+mount_disk '/dev/sdc' '/dev/sdc1'
 
 # Primary Install Tasks
 #########################
@@ -251,13 +252,13 @@ download_confluent_oss
 
 if [ ${ZOOKEEPER1KAFKA0} -eq "1" ];
 then
-  mount_disk '/dev/sdc' '/dev/sdc1'
+  # mount_disk '/dev/sdc' '/dev/sdc1'
 	#
 	#Install zookeeper
 	#-----------------------
 	configure_and_start_zookeeper
 else
-  mount_disk '/dev/sdc' '/dev/sdc1'
+  # mount_disk '/dev/sdc' '/dev/sdc1'
 	#
 	#Install kafka
 	#-----------------------

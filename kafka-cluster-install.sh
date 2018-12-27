@@ -183,14 +183,12 @@ configure_and_start_zookeeper()
   mkdir -p /opt/confluent/lib/zookeeper
   local zookeeper_props_file='/opt/confluent/etc/kafka/zookeeper.properties'
   # cd /opt/confluent
-  echo "" > $zookeeper_props_file
-	echo "tickTime=2000" >> $zookeeper_props_file
+  # echo "" > $zookeeper_props_file
+	echo "tickTime=2000" > $zookeeper_props_file
 	echo "dataDir=/opt/confluent/lib/zookeeper" >> $zookeeper_props_file
   echo "initLimit=5" >> $zookeeper_props_file
   echo "syncLimit=2" >> $zookeeper_props_file
 	echo "clientPort=2181" >> $zookeeper_props_file
-	echo "initLimit=5" >> $zookeeper_props_file
-	echo "syncLimit=2" >> $zookeeper_props_file
 	# OLD Test echo "server.1=${ZOOKEEPER_IP_PREFIX}:2888:3888" >> zookeeper-3.4.6/conf/zoo.cfg
 	$(expand_ip_range_for_server_properties "${ZOOKEEPER_IP_PREFIX}-${INSTANCE_COUNT}" "$zookeeper_props_file")
 

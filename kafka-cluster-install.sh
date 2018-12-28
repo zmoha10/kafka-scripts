@@ -137,6 +137,7 @@ expand_ip_range_for_server_properties() {
     for (( n=0 ; n<"${HOST_IPS[1]}"+0 ; n++))
     do
         echo "server.$(expr ${n} + 1)=${HOST_IPS[0]}${n}:2888:3888" >> /opt/confluent/etc/kafka/zookeeper.properties
+        echo $((${n}+1)) >> /opt/confluent/lib/zookeeper/myid
     done
 }
 
@@ -195,7 +196,7 @@ configure_and_start_zookeeper()
   # echo "autopurge.snapRetainCount=3" >> $zookeeper_props_file
   # echo "autopurge.purgeInterval=24" >> $zookeeper_props_file
 
-	echo $(($1+1)) >> /opt/confluent/lib/zookeeper/myid
+	# echo $(($1+1)) >> /opt/confluent/lib/zookeeper/myid
 
   nohup /opt/confluent/bin/zookeeper-server-start "$zookeeper_props_file" >> /opt/confluent/logs/zookeeper-server.log &
 	# zookeeper-3.4.9/bin/zkServer.sh start

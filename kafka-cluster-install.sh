@@ -43,6 +43,7 @@ help()
     echo "-h view this help content"
     echo "-z zookeeper not kafka"
     echo "-i zookeeper Private IP address prefix"
+    echo "-m id to be used in myid file"
 }
 
 log()
@@ -82,9 +83,10 @@ ZOOKEEPER1KAFKA0="0"
 ZOOKEEPER_IP_PREFIX="10.10.0.10"
 INSTANCE_COUNT=1
 ZOOKEEPER_PORT="2181"
+MYID="0"
 
 #Loop through options passed
-while getopts :k:b:z:i:c:p:h optname; do
+while getopts :k:b:z:i:c:m:h optname; do
     log "Option $optname set with value ${OPTARG}"
   case $optname in
     k)  #confluent version
@@ -100,8 +102,11 @@ while getopts :k:b:z:i:c:p:h optname; do
       ZOOKEEPER_IP_PREFIX=${OPTARG}
       ;;
     c) # Number of instances
-	INSTANCE_COUNT=${OPTARG}
-	;;
+	    INSTANCE_COUNT=${OPTARG}
+	    ;;
+    m) # myid
+      MYID=${OPTARG}
+      ;;
     h)  #show help
       help
       exit 2
@@ -137,7 +142,7 @@ expand_ip_range_for_server_properties() {
     for (( n=0 ; n<"${HOST_IPS[1]}"+0 ; n++))
     do
         echo "server.$(expr ${n} + 1)=${HOST_IPS[0]}${n}:2888:3888" >> /opt/confluent/etc/kafka/zookeeper.properties
-        echo $((${n}+1)) >> /opt/confluent/lib/zookeeper/myid
+        # echo $((${n}+1)) >> /opt/confluent/lib/zookeeper/myid
     done
 }
 
@@ -196,7 +201,7 @@ configure_and_start_zookeeper()
   # echo "autopurge.snapRetainCount=3" >> $zookeeper_props_file
   # echo "autopurge.purgeInterval=24" >> $zookeeper_props_file
 
-	# echo $(($1+1)) >> /opt/confluent/lib/zookeeper/myid
+	echo $(($MYID+1)) > /opt/confluent/lib/zookeeper/myid
 
   nohup /opt/confluent/bin/zookeeper-server-start "$zookeeper_props_file" >> /opt/confluent/logs/zookeeper-server.log &
 	# zookeeper-3.4.9/bin/zkServer.sh start
